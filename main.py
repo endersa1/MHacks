@@ -3,9 +3,14 @@ import time
 import cv2
 import dlib
 import pyautogui
+import csv
 
 pyautogui.FAILSAFE = False
 
+# Open a CSV file for writing eye gaze coordinates
+csv_file = open('eye_gaze_coordinates.csv', 'w', newline='')
+csv_writer = csv.writer(csv_file)
+csv_writer.writerow(['Timestamp', 'Left Eye X', 'Left Eye Y', 'Right Eye X', 'Right Eye Y'])
 
 def get_bounding_box(landmarks):
     # Find min and max landmarks based on X coordinate, and then select the X coordinate
@@ -160,6 +165,17 @@ while True:
                         print("WAKE UP!")
                     else:
                         print("YOU'RE AWAKE GOOD JOB!")
+                    normalized_x = 1920 * (average_offset[0] - min_x) / (max_x - min_x)
+                    normalized_y = 1080 * (average_offset[1] - min_y) / (max_y - min_y)
+                    if normalized_x < 0 or normalized_x > 1920 or normalized_y < 0 or normalized_y > 1080:
+                        print("User is looking off-screen!")
+                        onScreen = False
+                    else:
+                        print("User is looking at the screen!")
+                        onScreen = True
+                    # Write eye gaze coordinates to the CSV file
+                    timestamp = time.time()
+                    csv_writer.writerow([timestamp, normalized_x, normalized_y, onScreen])
 
                 # pyautogui.moveTo(
                 #     1920 * (average_offset[0] - min_x) / (max_x - min_x), 1080 * (average_offset[1] - min_y) / (max_y - min_y))
@@ -167,4 +183,5 @@ while True:
     cv2.imshow('frame', frame)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
+        csv_file.close()
         break
