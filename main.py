@@ -64,7 +64,7 @@ find_faces = dlib.get_frontal_face_detector()
 find_landmarks = dlib.shape_predictor(
     './shape_predictor_68_face_landmarks.dat')
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(1    )
 
 top_left_average_offset = None
 bottom_right_average_offset = None
@@ -158,9 +158,11 @@ while True:
                 if left_eye_height is not None and right_eye_height is not None and left_eye_width is not None and right_eye_width is not None and curr_left_eye_height is not None and curr_right_eye_height is not None and curr_left_eye_width is not None and curr_right_eye_width is not None:
                     if (left_eye_height)/(left_eye_width)*0.8 > (curr_left_eye_height)/(curr_left_eye_width) and (right_eye_height)/(right_eye_width)*0.8 > (curr_right_eye_height)/(curr_right_eye_width):
                         print("WAKE UP!")
+                    else:
+                        print("YOU'RE AWAKE GOOD JOB!")
 
-                pyautogui.moveTo(
-                    1920 * (average_offset[0] - min_x) / (max_x - min_x), 1080 * (average_offset[1] - min_y) / (max_y - min_y))
+                # pyautogui.moveTo(
+                #     1920 * (average_offset[0] - min_x) / (max_x - min_x), 1080 * (average_offset[1] - min_y) / (max_y - min_y))
 
     cv2.imshow('frame', frame)
 
