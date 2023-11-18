@@ -10,7 +10,7 @@ pyautogui.FAILSAFE = False
 # Open a CSV file for writing eye gaze coordinates
 csv_file = open('eye_gaze_coordinates.csv', 'w', newline='')
 csv_writer = csv.writer(csv_file)
-csv_writer.writerow(['Timestamp', 'Left Eye X', 'Left Eye Y', 'Right Eye X', 'Right Eye Y'])
+csv_writer.writerow(['Timestamp', 'Normalized X', 'Normalized Y', 'On Screen', 'Awake'])
 
 def get_bounding_box(landmarks):
     # Find min and max landmarks based on X coordinate, and then select the X coordinate
@@ -163,8 +163,10 @@ while True:
                 if left_eye_height is not None and right_eye_height is not None and left_eye_width is not None and right_eye_width is not None and curr_left_eye_height is not None and curr_right_eye_height is not None and curr_left_eye_width is not None and curr_right_eye_width is not None:
                     if (left_eye_height)/(left_eye_width)*0.8 > (curr_left_eye_height)/(curr_left_eye_width) and (right_eye_height)/(right_eye_width)*0.8 > (curr_right_eye_height)/(curr_right_eye_width):
                         print("WAKE UP!")
+                        awake = False
                     else:
                         print("YOU'RE AWAKE GOOD JOB!")
+                        awake = True
                     normalized_x = 1920 * (average_offset[0] - min_x) / (max_x - min_x)
                     normalized_y = 1080 * (average_offset[1] - min_y) / (max_y - min_y)
                     if normalized_x < 0 or normalized_x > 1920 or normalized_y < 0 or normalized_y > 1080:
@@ -175,7 +177,7 @@ while True:
                         onScreen = True
                     # Write eye gaze coordinates to the CSV file
                     timestamp = time.time()
-                    csv_writer.writerow([timestamp, normalized_x, normalized_y, onScreen])
+                    csv_writer.writerow([timestamp, normalized_x, normalized_y, onScreen, awake])
 
                 # pyautogui.moveTo(
                 #     1920 * (average_offset[0] - min_x) / (max_x - min_x), 1080 * (average_offset[1] - min_y) / (max_y - min_y))
