@@ -156,7 +156,7 @@ while True:
                 max_x, max_y = bottom_right_average_offset
                 # print(left_eye_width, left_eye_height, right_eye_width, right_eye_height, curr_left_eye_width, curr_left_eye_height, curr_right_eye_width, curr_right_eye_height)
                 if left_eye_height is not None and right_eye_height is not None and left_eye_width is not None and right_eye_width is not None and curr_left_eye_height is not None and curr_right_eye_height is not None and curr_left_eye_width is not None and curr_right_eye_width is not None:
-                    if (left_eye_height)/(left_eye_width)*0.75 > (curr_left_eye_height)/(curr_left_eye_width) and (right_eye_height)/(right_eye_width)*0.75 > (curr_right_eye_height)/(curr_right_eye_width):
+                    if (left_eye_height)/(left_eye_width)*0.8 > (curr_left_eye_height)/(curr_left_eye_width) and (right_eye_height)/(right_eye_width)*0.8 > (curr_right_eye_height)/(curr_right_eye_width):
                         print("WAKE UP!")
 
                 pyautogui.moveTo(
