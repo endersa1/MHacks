@@ -10,7 +10,7 @@ pyautogui.FAILSAFE = False
 # Open a CSV file for writing eye gaze coordinates
 csv_file = open('eye_gaze_coordinates.csv', 'w', newline='')
 csv_writer = csv.writer(csv_file)
-csv_writer.writerow(['Timestamp', 'Normalized X', 'Normalized Y', 'On Screen', 'Awake'])
+csv_writer.writerow(['Timestamp', 'Normalized X', 'Normalized Y', 'On Screen', 'Awake', 'Blinking'])
 
 def get_bounding_box(landmarks):
     # Find min and max landmarks based on X coordinate, and then select the X coordinate
@@ -110,6 +110,9 @@ while True:
         curr_left_eye_height = left_bbox[3] - left_bbox[2]
         curr_right_eye_width = right_bbox[1] - right_bbox[0]
         curr_right_eye_height = right_bbox[3] - right_bbox[2]
+        awake = False
+        blinking = False
+        onScreen = False
 
         left_iris_offset = None
         right_iris_offset = None
@@ -163,11 +166,25 @@ while True:
                 # print(left_eye_width, left_eye_height, right_eye_width, right_eye_height, curr_left_eye_width, curr_left_eye_height, curr_right_eye_width, curr_right_eye_height)
                 if left_eye_height is not None and right_eye_height is not None and left_eye_width is not None and right_eye_width is not None and curr_left_eye_height is not None and curr_right_eye_height is not None and curr_left_eye_width is not None and curr_right_eye_width is not None:
                     if (left_eye_height)/(left_eye_width)*0.8 > (curr_left_eye_height)/(curr_left_eye_width) and (right_eye_height)/(right_eye_width)*0.8 > (curr_right_eye_height)/(curr_right_eye_width):
-                        print("WAKE UP!")
+                        # print("WAKE UP!")
+                        blink[time.time() % 30] = 0
                         awake = False
                     else:
-                        print("YOU'RE AWAKE GOOD JOB!")
+                        blink[time.time() % 30] = 1
+                        # print("YOU'RE AWAKE GOOD JOB!")
                         awake = True
+                    if(sum(blinks) > 20):
+                        print("WAKE UP!")
+                        awake = True
+                    else:
+                        print("YOU'RE AWAKE GOOD JOB!")
+                        awake = False
+                    if(sum(blinks) < 6):
+                        print("REST YOUR EYES!")
+                        blinking = True
+                    else:
+                        print("YOU'RE RESTED GOOD JOB!")
+                        blinking = False
                     normalized_x = 1920 * (average_offset[0] - min_x) / (max_x - min_x)
                     normalized_y = 1080 * (average_offset[1] - min_y) / (max_y - min_y)
                     if normalized_x < 0 or normalized_x > 1920 or normalized_y < 0 or normalized_y > 1080:
@@ -178,7 +195,7 @@ while True:
                         onScreen = True
                     # Write eye gaze coordinates to the CSV file
                     timestamp = time.time()
-                    csv_writer.writerow([timestamp, normalized_x, normalized_y, onScreen, awake])
+                    csv_writer.writerow([timestamp, normalized_x, normalized_y, onScreen, awake, blinking])
 
                 # pyautogui.moveTo(
                 #     1920 * (average_offset[0] - min_x) / (max_x - min_x), 1080 * (average_offset[1] - min_y) / (max_y - min_y))
