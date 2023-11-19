@@ -1,3 +1,4 @@
+![](https://i.imgur.com/9jut70l.png)
 # MHacks
 ![GitHub commit activity (branch)](https://img.shields.io/github/commit-activity/t/endersa1/MHacks) ![GitHub top language](https://img.shields.io/github/languages/top/endersa1/MHacks) ![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/endersa1/MHacks/pylint.yml) ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/endersa1/MHacks) ![GitHub repo file count (file type)](https://img.shields.io/github/directory-file-count/endersa1/MHacks)
 
