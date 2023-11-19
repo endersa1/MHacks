@@ -13,6 +13,8 @@ from openai import AzureOpenAI
 import firebase_admin
 from firebase_admin import storage
 from PIL import Image
+import json
+import csv
 
 # Load CSV data
 df = pd.read_csv('eye_gaze_coordinates.csv')
@@ -51,8 +53,8 @@ def display_heatmap(csv_path, title):
     fig, ax = plt.subplots()
     ax.imshow(np.rot90(z), cmap=plt.cm.viridis, extent=[scatter_data['Normalized X'].min(),
                                                        scatter_data['Normalized X'].max(),
-                                                       scatter_data['Normalized Y'].min(),
-                                                       scatter_data['Normalized Y'].max()],
+                                                       scatter_data['Normalized Y'].max(),
+                                                       scatter_data['Normalized Y'].min()],
               alpha=0.5, aspect='auto')
     ax.set_xlabel('Normalized X')
     ax.set_ylabel('Normalized Y')
@@ -104,8 +106,8 @@ else:
 client = fitbit.Fitbit(
     '23RFVG', 
     'ed6085c8a0e2a7cb173e95e1f97ab6c2',
-    access_token='eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyM1JGVkciLCJzdWIiOiJCUURZOFoiLCJpc3MiOiJGaXRiaXQiLCJ0eXAiOiJhY2Nlc3NfdG9rZW4iLCJzY29wZXMiOiJ3aHIgd3BybyB3bnV0IHdzbGUgd3dlaSB3c29jIHdhY3Qgd3NldCB3bG9jIiwiZXhwIjoxNzAwNDAzMDE4LCJpYXQiOjE3MDAzNzQyMTh9.QRp8IXrFKXn8BrxmqykEzbfCeUo8jICf6jHDl8Q_3N8', 
-    refresh_token='13260ddec59ab0af5c02488352d5c94063d5c119d4e82c25dbe6faf66acfcbc3'
+    access_token='eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyM1JGVkciLCJzdWIiOiJCUURZOFoiLCJpc3MiOiJGaXRiaXQiLCJ0eXAiOiJhY2Nlc3NfdG9rZW4iLCJzY29wZXMiOiJ3aHIgd251dCB3cHJvIHdzbGUgd3dlaSB3c29jIHdzZXQgd2FjdCB3bG9jIiwiZXhwIjoxNzAwNDM0MTUzLCJpYXQiOjE3MDA0MDUzNTN9.8JhymbXAm6Yb0sM3ufyNCB5-9Go9cv-PRgYB9fAEUoc', 
+    refresh_token='81d7e2d5822b4cdd585f086a1580d79c031674ea8e228bdb83c65bd26c1ed1b3'
 )
 
 start_date = arrow.get("2023-08-01")
@@ -339,7 +341,7 @@ ax = plt.gca()
 ax.set_xticks(range(0,1440,60))
 ax.set_xticklabels(range(0,24))
 plt.xlabel("Time")
-plt.grid(linestyle=":")
+# plt.grid(linestyle=":")
 # plt.show()
 st.pyplot(fig)
 
@@ -382,6 +384,24 @@ response = client.chat.completions.create(
     ]
 )
 st.title("Azure OpenAI Chatbot Feedback on Your Study Session Productivity")
+st.markdown(response.choices[0].message.content)
+productivity_data = []
+with open('aw-buckets-export.json', 'r') as file:
+    productivity_data = json.load(file)
+eye_gazing_data = []
+with open('eye_gaze_coordinates.csv', 'r') as file:
+    reader = csv.reader(file)
+    eye_gazing_data = list(reader)
+response = client.chat.completions.create(
+    model="gpt-4", # model = "deployment_name".
+    messages=[
+        {"role": "system", "content": "You provide helpful productivity advice to improve study and work habits"},
+        {"role": "assistant", "content": "Please provide your activity data and I will give you concise yet insightful analysis."},
+        # {"role": "user", "content": f"{productivity_data}"},
+        {"role": "user", "content": f"{eye_gazing_data}"}
+    ]
+)
+
 st.markdown(response.choices[0].message.content)
 
 cred_obj = firebase_admin.credentials.Certificate('alert-563fb-firebase-adminsdk-bssfd-87718064f0.json')
