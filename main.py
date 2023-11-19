@@ -69,7 +69,7 @@ find_faces = dlib.get_frontal_face_detector()
 find_landmarks = dlib.shape_predictor(
     './shape_predictor_68_face_landmarks.dat')
 
-cap = cv2.VideoCapture(1    )
+cap = cv2.VideoCapture(0)
 
 top_left_average_offset = None
 bottom_right_average_offset = None
@@ -78,6 +78,7 @@ left_eye_width = None
 left_eye_height = None
 right_eye_height = None
 right_eye_width = None
+blinks = [0 for i in range(30)]
 
 while True:
     _, frame = cap.read()

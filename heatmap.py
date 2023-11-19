@@ -39,3 +39,5 @@ display_heatmap('top_right.csv', 'Top Right Heatmap')
 
 # Display heatmap for bottom_left.csv
 display_heatmap('bottom_left.csv', 'Bottom Left Heatmap')
+
+display_heatmap('eye_gaze_coordinates.csv', 'Eye Gaze Heatmap')
