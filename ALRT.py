@@ -91,7 +91,7 @@ def page_track():
     find_landmarks = dlib.shape_predictor(
     './shape_predictor_68_face_landmarks.dat')
 
-    cap = cv2.VideoCapture(1)
+    cap = cv2.VideoCapture(0)
 
     top_left_average_offset = None
     bottom_right_average_offset = None
@@ -325,8 +325,8 @@ def page_analyze():
     client = fitbit.Fitbit(
         '23RFVG', 
         'ed6085c8a0e2a7cb173e95e1f97ab6c2',
-        access_token='eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyM1JGVkciLCJzdWIiOiJCUURZOFoiLCJpc3MiOiJGaXRiaXQiLCJ0eXAiOiJhY2Nlc3NfdG9rZW4iLCJzY29wZXMiOiJ3aHIgd3BybyB3bnV0IHdzbGUgd3dlaSB3c29jIHdhY3Qgd3NldCB3bG9jIiwiZXhwIjoxNzAwNDAzMDE4LCJpYXQiOjE3MDAzNzQyMTh9.QRp8IXrFKXn8BrxmqykEzbfCeUo8jICf6jHDl8Q_3N8', 
-        refresh_token='13260ddec59ab0af5c02488352d5c94063d5c119d4e82c25dbe6faf66acfcbc3'
+        access_token='eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyM1JGVkciLCJzdWIiOiJCUURZOFoiLCJpc3MiOiJGaXRiaXQiLCJ0eXAiOiJhY2Nlc3NfdG9rZW4iLCJzY29wZXMiOiJ3aHIgd251dCB3cHJvIHdzbGUgd3dlaSB3c29jIHdzZXQgd2FjdCB3bG9jIiwiZXhwIjoxNzAwNDM0MTUzLCJpYXQiOjE3MDA0MDUzNTN9.8JhymbXAm6Yb0sM3ufyNCB5-9Go9cv-PRgYB9fAEUoc', 
+        refresh_token='81d7e2d5822b4cdd585f086a1580d79c031674ea8e228bdb83c65bd26c1ed1b3'
     )
 
     start_date = arrow.get("2023-08-01")

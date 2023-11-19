@@ -4,13 +4,14 @@ import cv2
 import dlib
 import pyautogui
 import csv
+import beepy
 
 pyautogui.FAILSAFE = False
 
 # Open a CSV file for writing eye gaze coordinates
-csv_file = open('eye_gaze_coordinates.csv', 'w', newline='')
-csv_writer = csv.writer(csv_file)
-csv_writer.writerow(['Timestamp', 'Normalized X', 'Normalized Y', 'On Screen', 'Awake', 'Blinking', 'Blinks', 'Score'])
+# csv_file = open('eye_gaze_coordinates.csv', 'w', newline='')
+# csv_writer = csv.writer(csv_file)
+# csv_writer.writerow(['Timestamp', 'Normalized X', 'Normalized Y', 'On Screen', 'Awake', 'Blinking', 'Blinks', 'Score'])
 
 def get_bounding_box(landmarks):
     # Find min and max landmarks based on X coordinate, and then select the X coordinate
@@ -80,9 +81,20 @@ right_eye_height = None
 right_eye_width = None
 score = 100
 blinks = []
+not_on_task_count = 0
 
 while True:
     _, frame = cap.read()
+
+    if(len(find_faces(frame)) == 0 and top_left_average_offset is not None and bottom_right_average_offset is not None):
+        print("NOT ON TASK!")
+        score -= 1
+        not_on_task_count += 1
+        if(not_on_task_count == 10):
+            beepy.beep(sound=4)
+            not_on_task_count = 0
+    else:
+        not_on_task_count = 0
 
     for face_bounding_box in find_faces(frame):
         landmarks = find_landmarks(frame, face_bounding_box).parts()
@@ -176,7 +188,7 @@ while True:
                             blinks.pop(0)
                         blinks.append(0)
                         # print("YOU'RE AWAKE GOOD JOB!")
-                    print(blinks)
+                    # print(blinks)
                     if(sum(blinks) > 20):
                         print("WAKE UP!")
                         awake = True
@@ -205,7 +217,7 @@ while True:
                         # score += 1
                     # Write eye gaze coordinates to the CSV file
                     timestamp = time.time()
-                    csv_writer.writerow([timestamp, normalized_x, normalized_y, onScreen, awake, blinking, sum(blinks), score])
+                    # csv_writer.writerow([timestamp, normalized_x, normalized_y, onScreen, awake, blinking, sum(blinks), score])
 
                 # pyautogui.moveTo(
                 #     1920 * (average_offset[0] - min_x) / (max_x - min_x), 1080 * (average_offset[1] - min_y) / (max_y - min_y))
