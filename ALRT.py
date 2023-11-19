@@ -5,16 +5,79 @@ import dlib
 import pyautogui
 import csv
 
+pyautogui.FAILSAFE = False
+
+# Open a CSV file for writing eye gaze coordinates
+csv_file = open('eye_gaze_coordinates.csv', 'w', newline='')
+csv_writer = csv.writer(csv_file)
+csv_writer.writerow(['Timestamp', 'Normalized X', 'Normalized Y', 'On Screen', 'Awake', 'Blinking', 'Blinks', 'Score'])
+
+
+def get_bounding_box(landmarks):
+    # Find min and max landmarks based on X coordinate, and then select the X coordinate
+    min_x = min(landmarks, key=lambda p: p.x).x
+    max_x = max(landmarks, key=lambda p: p.x).x
+    # Find min and max landmarks based on Y coordinate, and then select the Y coordinate
+    min_y = min(landmarks, key=lambda p: p.y).y
+    max_y = max(landmarks, key=lambda p: p.y).y
+
+    return min_x, max_x, min_y, max_y
+
+
+def filter_for_iris(eye_image):
+    # Convert to grayscale
+    eye_image = cv2.cvtColor(eye_image, cv2.COLOR_BGR2GRAY)
+
+    # Blur frame
+    eye_image = cv2.bilateralFilter(eye_image, 10, 15, 15)
+
+    # Adjust brightness
+    eye_image = cv2.equalizeHist(eye_image)
+
+    # Find dark parts of frame
+    iris_image = 255 - \
+        cv2.threshold(eye_image, 50, 255, cv2.THRESH_BINARY)[1]
+
+    return iris_image
+
+
+def find_iris_location(iris_image):
+    # Find contours
+    contours, _ = cv2.findContours(
+        iris_image, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+    # Sort in ascending order by area
+    contours = sorted(contours, key=cv2.contourArea)
+
+    try:
+        # Find center of largest contour
+        moments = cv2.moments(contours[-1])
+        # m[i, j] = Sum(x ^ i * y ^ j * brightness at (x, y))
+        x = int(moments['m10'] / moments['m00'])
+        y = int(moments['m01'] / moments['m00'])
+    except (IndexError, ZeroDivisionError):
+        # Assume there is no iris
+        return None
+
+    return x, y
+
+
+def crop(image, bbox):
+    return image[bbox[2]:bbox[3], bbox[0]:bbox[1]]
+
+def switch_analyze():
+    st.session_state.page = "analyze"
+
 def page_track():
-    st.header("Productivity Tracking")
-    if st.button("End Tracking", kry="one"):
-        st.session_state.page = "analyze"
+
+    st.write("Productivity Tracking")
+    st.button("End Tracking", key="one", on_click=switch_analyze)
 
     find_faces = dlib.get_frontal_face_detector()
     find_landmarks = dlib.shape_predictor(
     './shape_predictor_68_face_landmarks.dat')
 
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(1)
 
     top_left_average_offset = None
     bottom_right_average_offset = None
@@ -25,7 +88,15 @@ def page_track():
     right_eye_width = None
     blinks = [0 for i in range(30)]
 
+
+
+
     while True:
+
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            csv_file.close()
+            break
+
         _, frame = cap.read()
 
         for face_bounding_box in find_faces(frame):
@@ -146,11 +217,6 @@ def page_track():
 
         cv2.imshow('frame', frame)
 
-        if st.button("End Tracking", kry="one"):
-            st.session_state.page = "analyze"
-        #if cv2.waitKey(1) & 0xFF == ord('q'):
-            csv_file.close()
-            break
 
 def page_analyze():
     st.header("Productivity Analytics")
@@ -161,6 +227,8 @@ def page_analyze():
 def main():
     # Set page configuration to avoid script rerun on every interaction
     st.set_page_config(page_title="Multi-Page App", page_icon="🅰️")
+    
+    
 
     if "page" not in st.session_state:
         st.session_state.page = "analyze"
