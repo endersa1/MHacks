@@ -69,11 +69,12 @@ sleep_data["date"] = pd.to_datetime(sleep_data["date"])
 # Also add a boolean column for weekend detection
 sleep_data["is_weekend"] = sleep_data["date"].dt.weekday > 4
 # Sleep distribution
+fig, ax = plt.subplots(figsize=(12, 8))
 (sleep_data["total_sleep_minutes"]/60).plot(
     kind="hist", 
     bins=50, 
     alpha=0.8,
-    figsize=(12,8)
+    ax=ax
 )
 (sleep_data["total_time_in_bed"]/60).plot(
     kind="hist", 
@@ -88,13 +89,14 @@ plt.grid("minor", linestyle=":")
 plt.xlabel("Hours")
 plt.ylabel("Frequency")
 plt.title("Sleeping Hours")
-plt.show()
+st.pyplot(fig)
 #Plot a scatter plot directly from Pandas
+fig, ax = plt.subplots(figsize=(10, 10))
 sleep_data.plot(
     x="total_time_in_bed", 
     y="total_sleep_minutes", 
     kind="scatter", 
-    figsize=(10,10)
+    ax=ax
 )
 # Add a perfect 1:1 line for comparison
 ax = plt.gca()
@@ -102,7 +104,7 @@ ax.set_aspect("equal")
 x = np.linspace(*ax.get_xlim())
 ax.plot(x,x, linestyle="--")
 plt.grid(linestyle=":")
-plt.show()
+st.pyplot(fig)
 # Sleep makeup - calculate data to plot
 plot_data = sleep_data.\
   sort_values("date").\
@@ -123,7 +125,7 @@ plt.xlabel("Date")
 plt.ylabel("Minutes")
 # Show a subset of data for clarity on the website:
 plt.xlim(pd.to_datetime("2023-08-01"), pd.to_datetime("2023-12-31"))
-plt.show()
+st.pyplot(fig)
 
 # Heart Rate
 heart_summaries = []
@@ -165,20 +167,20 @@ plt.xlabel("Date")
 plt.ylabel("Resting Heart Rate")
 # Show a subset of data for clarity on the website:
 plt.xlim(pd.to_datetime("2023-08-01"), pd.to_datetime("2023-12-31"))
-plt.show()
+st.pyplot(fig)
 
 
-sameDay = f"{client.API_ENDPOINT}/1/user/-/activities/heart/date/today/today/1min.json"
-sameDayData = client.make_request(sameDay)
-heart_summaries = []
-for heart in sameDayData["activities-heart"]:
-  print(heart)
-  # For simplicity, ignoring "naps" and going for only "stage" data
-  if "restingHeartRate" in heart["value"] and heart["value"]["restingHeartRate"]:
-    heart_summaries.append(dict(
-        date=pd.to_datetime(heart["dateTime"]).date(),
-        resting_heart_rate=heart["value"]["restingHeartRate"]
-    ))
+# sameDay = f"{client.API_ENDPOINT}/1/user/-/activities/heart/date/today/today/1min.json"
+# sameDayData = client.make_request(sameDay)
+# heart_summaries = []
+# for heart in sameDayData["activities-heart"]:
+#   # print(heart)
+#   # For simplicity, ignoring "naps" and going for only "stage" data
+#   if "restingHeartRate" in heart["value"] and heart["value"]["restingHeartRate"]:
+#     heart_summaries.append(dict(
+#         date=pd.to_datetime(heart["dateTime"]).date(),
+#         resting_heart_rate=heart["value"]["restingHeartRate"]
+#     ))
 # Convert new dictionary format to DataFrame
 # heart_data = pd.DataFrame(heart_summaries)
 # # Sort by date and view first rows
@@ -210,13 +212,13 @@ for heart in sameDayData["activities-heart"]:
 # plt.xlim(pd.to_datetime("2023-08-01"), pd.to_datetime("2023-12-31"))
 # plt.show()
 
-sameDay = f"{client.API_ENDPOINT}/1/user/-/activities/heart/date/2023-11-18/1d/1min.json?timezone=EST"
+sameDay = f"{client.API_ENDPOINT}/1/user/-/activities/heart/date/today/1d/1min.json?timezone=EST"
 sameDayData = client.make_request(sameDay)
-print(sameDayData["activities-heart-intraday"]["dataset"])
+# print(sameDayData["activities-heart-intraday"]["dataset"])
 #graph it
 heart_summaries = []
 for heart in sameDayData["activities-heart-intraday"]["dataset"]:
-  print(heart)
+  # print(heart)
   # For simplicity, ignoring "naps" and going for only "stage" data
   if "value" in heart:
     heart_summaries.append(dict(
