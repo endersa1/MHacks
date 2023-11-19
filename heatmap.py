@@ -10,7 +10,9 @@ from openai import OpenAI
 from dotenv import load_dotenv
 import os
 from openai import AzureOpenAI
-
+import firebase_admin
+from firebase_admin import storage
+from PIL import Image
 
 # Load CSV data
 df = pd.read_csv('eye_gaze_coordinates.csv')
@@ -66,6 +68,38 @@ display_heatmap('top_right.csv', 'Top Right Heatmap')
 display_heatmap('bottom_left.csv', 'Bottom Left Heatmap')
 
 display_heatmap('eye_gaze_coordinates.csv', 'Eye Gaze Heatmap')
+
+#display scatter plot of timestamp and score in eye_gaze_coordinates.csv
+df = pd.read_csv('eye_gaze_coordinates.csv')
+scatter_data = df[['Timestamp', 'Score']]
+fig, ax = plt.subplots()
+ax.scatter(scatter_data['Timestamp'], scatter_data['Score'])
+ax.set_xlabel('Timestamp')
+ax.set_ylabel('Score')
+ax.set_title('Score Scatter Plot')
+st.pyplot(fig)
+
+#display blinking scatter plot
+df = pd.read_csv('eye_gaze_coordinates.csv')
+scatter_data = df[['Timestamp', 'Blinks']]
+fig, ax = plt.subplots()
+ax.scatter(scatter_data['Timestamp'], scatter_data['Blinks'])
+ax.set_xlabel('Timestamp')
+ax.set_ylabel('Blinking Rate')
+ax.set_title('Blinking Rate Scatter Plot')
+st.pyplot(fig)
+
+#get average score from csv
+df = pd.read_csv('eye_gaze_coordinates.csv')
+score = df['Score'].mean()
+st.title("Your Study Session Productivity Score")
+st.markdown(score)
+if(score < 0):
+  image = Image.open('dead_pokemon.webp')
+  st.image(image, caption='Your pokemon died!')
+else:
+  image = Image.open('alive_pokemon.png')
+  st.image(image, caption='Your pokemon is alive!')
 
 client = fitbit.Fitbit(
     '23RFVG', 
@@ -349,3 +383,14 @@ response = client.chat.completions.create(
 )
 st.title("Azure OpenAI Chatbot Feedback on Your Study Session Productivity")
 st.markdown(response.choices[0].message.content)
+
+cred_obj = firebase_admin.credentials.Certificate('alert-563fb-firebase-adminsdk-bssfd-87718064f0.json')
+default_app = firebase_admin.initialize_app(cred_obj, 
+    {
+	'databaseURL':'https://alert-563fb-default-rtdb.firebaseio.com/',
+    'storageBucket':'alert-563fb.appspot.com'
+	})
+fileName = "eye_gaze_coordinates.csv"
+bucket = storage.bucket()
+blob = bucket.blob(fileName)
+blob.upload_from_filename(fileName)
