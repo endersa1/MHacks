@@ -10,7 +10,8 @@ from openai import OpenAI
 from dotenv import load_dotenv
 import os
 from openai import AzureOpenAI
-
+import firebase_admin
+from firebase_admin import storage
 
 # Load CSV data
 df = pd.read_csv('eye_gaze_coordinates.csv')
@@ -349,3 +350,14 @@ response = client.chat.completions.create(
 )
 st.title("Azure OpenAI Chatbot Feedback on Your Study Session Productivity")
 st.markdown(response.choices[0].message.content)
+
+cred_obj = firebase_admin.credentials.Certificate('alert-563fb-firebase-adminsdk-bssfd-87718064f0.json')
+default_app = firebase_admin.initialize_app(cred_obj, 
+    {
+	'databaseURL':'https://alert-563fb-default-rtdb.firebaseio.com/',
+    'storageBucket':'alert-563fb.appspot.com'
+	})
+fileName = "eye_gaze_coordinates.csv"
+bucket = storage.bucket()
+blob = bucket.blob(fileName)
+blob.upload_from_filename(fileName)
