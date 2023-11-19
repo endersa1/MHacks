@@ -184,7 +184,7 @@ while True:
                     else:
                         print("YOU'RE AWAKE GOOD JOB!")
                         awake = False
-                        score += 1
+                        # score += 1
                     if(sum(blinks) < 6):
                         print("REST YOUR EYES!")
                         blinking = True
@@ -202,7 +202,7 @@ while True:
                     else:
                         print("User is looking at the screen!")
                         onScreen = True
-                        score += 1
+                        # score += 1
                     # Write eye gaze coordinates to the CSV file
                     timestamp = time.time()
                     csv_writer.writerow([timestamp, normalized_x, normalized_y, onScreen, awake, blinking, sum(blinks), score])
